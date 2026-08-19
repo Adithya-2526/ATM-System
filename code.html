@@ -1,1 +1,312 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ATM System</title>
+
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: Arial, sans-serif;
+        }
+
+        body {
+            background: linear-gradient(135deg, #1d2671, #c33764);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .atm {
+            width: 400px;
+            background: #222;
+            padding: 25px;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+            color: white;
+        }
+
+        h1 {
+            text-align: center;
+            color: #00e5ff;
+            margin-bottom: 20px;
+        }
+
+        .screen {
+            background: #111;
+            padding: 20px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+
+        input {
+            width: 100%;
+            padding: 12px;
+            margin: 10px 0;
+            border: none;
+            border-radius: 5px;
+            font-size: 16px;
+        }
+
+        button {
+            width: 100%;
+            padding: 12px;
+            margin: 7px 0;
+            border: none;
+            border-radius: 5px;
+            background: #00a8ff;
+            color: white;
+            font-size: 16px;
+            cursor: pointer;
+        }
+
+        button:hover {
+            background: #0088cc;
+        }
+
+        .logout {
+            background: #e84118;
+        }
+
+        .logout:hover {
+            background: #c23616;
+        }
+
+        .hidden {
+            display: none;
+        }
+
+        #message {
+            margin-top: 15px;
+            color: #00ff88;
+            min-height: 20px;
+        }
+
+        .balance {
+            font-size: 28px;
+            color: #00ff88;
+            margin: 15px 0;
+        }
+    </style>
+</head>
+
+<body>
+
+<div class="atm">
+
+    <h1>ATM SYSTEM</h1>
+
+    <!-- LOGIN SCREEN -->
+    <div id="loginScreen" class="screen">
+        <h2>Enter PIN</h2>
+
+        <input
+            type="password"
+            id="pin"
+            placeholder="Enter 4-digit PIN"
+            maxlength="4"
+        >
+
+        <button onclick="login()">Login</button>
+
+        <p id="loginMessage"></p>
+    </div>
+
+    <!-- ATM MENU -->
+    <div id="atmScreen" class="screen hidden">
+
+        <h2>Welcome!</h2>
+
+        <div class="balance">
+            ₹<span id="balance">10000</span>
+        </div>
+
+        <button onclick="checkBalance()">Check Balance</button>
+
+        <button onclick="withdraw()">Withdraw Cash</button>
+
+        <button onclick="deposit()">Deposit Cash</button>
+
+        <button onclick="showMessage()">Transaction History</button>
+
+        <button class="logout" onclick="logout()">Logout</button>
+
+        <p id="message"></p>
+
+    </div>
+
+</div>
+
+
+<script>
+
+    // Default ATM PIN
+    const correctPIN = "1234";
+
+    // Starting balance
+    let balance = 10000;
+
+    // Transaction history
+    let transactions = [];
+
+
+    // LOGIN FUNCTION
+    function login() {
+
+        let pin = document.getElementById("pin").value;
+        let loginMessage = document.getElementById("loginMessage");
+
+        if (pin === correctPIN) {
+
+            document.getElementById("loginScreen")
+                .classList.add("hidden");
+
+            document.getElementById("atmScreen")
+                .classList.remove("hidden");
+
+            loginMessage.innerHTML = "";
+
+            updateBalance();
+
+        } else {
+
+            loginMessage.style.color = "red";
+            loginMessage.innerHTML = "Incorrect PIN!";
+        }
+    }
+
+
+    // UPDATE BALANCE
+    function updateBalance() {
+
+        document.getElementById("balance").innerText =
+            balance.toFixed(2);
+    }
+
+
+    // CHECK BALANCE
+    function checkBalance() {
+
+        document.getElementById("message").innerHTML =
+            "Your current balance is ₹" + balance.toFixed(2);
+    }
+
+
+    // WITHDRAW CASH
+    function withdraw() {
+
+        let amount = prompt("Enter withdrawal amount:");
+
+        amount = Number(amount);
+
+        if (isNaN(amount) || amount <= 0) {
+
+            document.getElementById("message").innerHTML =
+                "Please enter a valid amount.";
+
+            return;
+        }
+
+        if (amount > balance) {
+
+            document.getElementById("message").innerHTML =
+                "Insufficient balance!";
+
+            return;
+        }
+
+        if (amount % 100 !== 0) {
+
+            document.getElementById("message").innerHTML =
+                "Please enter an amount in multiples of ₹100.";
+
+            return;
+        }
+
+        balance -= amount;
+
+        transactions.push(
+            "Withdrawn ₹" + amount
+        );
+
+        updateBalance();
+
+        document.getElementById("message").innerHTML =
+            "₹" + amount + " withdrawn successfully.";
+    }
+
+
+    // DEPOSIT CASH
+    function deposit() {
+
+        let amount = prompt("Enter deposit amount:");
+
+        amount = Number(amount);
+
+        if (isNaN(amount) || amount <= 0) {
+
+            document.getElementById("message").innerHTML =
+                "Please enter a valid amount.";
+
+            return;
+        }
+
+        balance += amount;
+
+        transactions.push(
+            "Deposited ₹" + amount
+        );
+
+        updateBalance();
+
+        document.getElementById("message").innerHTML =
+            "₹" + amount + " deposited successfully.";
+    }
+
+
+    // TRANSACTION HISTORY
+    function showMessage() {
+
+        if (transactions.length === 0) {
+
+            document.getElementById("message").innerHTML =
+                "No transactions yet.";
+
+            return;
+        }
+
+        document.getElementById("message").innerHTML =
+            transactions.join("<br>");
+    }
+
+
+    // LOGOUT
+    function logout() {
+
+        document.getElementById("atmScreen")
+            .classList.add("hidden");
+
+        document.getElementById("loginScreen")
+            .classList.remove("hidden");
+
+        document.getElementById("pin").value = "";
+
+        document.getElementById("loginMessage").innerHTML =
+            "Logged out successfully.";
+
+        document.getElementById("loginMessage").style.color =
+            "#00ff88";
+
+        document.getElementById("message").innerHTML = "";
+    }
+
+</script>
+
+</body>
+</html>
 
